@@ -184,6 +184,7 @@ df["catalyst"]=cat; df["polarity"]=pol; df["confidence"]=conf; df["T+1"]=t1s; df
 df.sort_values(["T+1","published_at"], ascending=[False, False], inplace=True)
 
 # ---- Auto Top Picks (AI filtered) ----
+st.markdown('<a id="dash"></a>', unsafe_allow_html=True)
 st.subheader("Auto Top Picks")
 picks = df[(df["T+1"]>=auto_min_t1) & (df["confidence"]>=auto_min_conf)].copy()
 st.write(f"{len(picks)} picks (T+1 ≥ {auto_min_t1}, confidence ≥ {auto_min_conf}) from a batch of {len(batch)} symbols")
