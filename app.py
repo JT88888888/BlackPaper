@@ -389,3 +389,8 @@ else:
     st.error("OPENAI_API_KEY not found. Add it to Streamlit secrets.")
 st.markdown('<a id="settings"></a>', unsafe_allow_html=True)
 st.markdown('<div class="section-title">Settings</div>', unsafe_allow_html=True)
+# --- Analyst88 section anchor and header ---
+st.markdown('<a id="analyst88"></a>', unsafe_allow_html=True)
+st.header("Analyst88")
+st.write("AI-powered deep scan will appear here…")
+# (You can expand this with your Analyst88 analysis logic)
