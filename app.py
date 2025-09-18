@@ -226,7 +226,7 @@ try:
     _openai_ready = bool(_openai_key)
 except Exception:
     _openai_ready = False
-
+st.markdown('<a id="analyst88"></a>', unsafe_allow_html=True)
 st.subheader("Analyst88 – AI Flags (next 1–5 days)")
 
 with st.expander("Run Analyst88 on the feed (uses your OpenAI API key)"):
@@ -387,3 +387,5 @@ if "OPENAI_API_KEY" in st.secrets:
                 st.warning("No data available yet for Analyst88.")
 else:
     st.error("OPENAI_API_KEY not found. Add it to Streamlit secrets.")
+st.markdown('<a id="settings"></a>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">Settings</div>', unsafe_allow_html=True)
