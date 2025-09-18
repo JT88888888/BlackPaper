@@ -394,3 +394,22 @@ st.markdown('<a id="analyst88"></a>', unsafe_allow_html=True)
 st.header("Analyst88")
 st.write("AI-powered deep scan will appear here…")
 # (You can expand this with your Analyst88 analysis logic)
+if st.button("Run Analyst88 full scan"):
+    st.info("Scanning latest signals…")
+    # Example: reuse your aggregated data frame (adjust variable if different)
+    all_items = df_all.to_dict(orient="records")
+
+    system_prompt = "You are a financial analyst. From this JSON list, find and explain stocks with strong upside potential in the next few days."
+    user_prompt = json.dumps(all_items)
+
+    try:
+        completion = openai.ChatCompletion.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ]
+        )
+        st.write(completion.choices[0].message["content"])
+    except Exception as e:
+        st.error(f"Analyst88 scan failed: {e}")
