@@ -1,6 +1,8 @@
 import os, re, time, json, hashlib, random, requests, pandas as pd, feedparser, streamlit as st
 from datetime import datetime, timedelta
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import openai
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 # --- New dashboard header/navigation (B) ---
 st.set_page_config(page_title="BlackPaper – Market Intelligence", layout="wide")
 
