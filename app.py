@@ -364,9 +364,7 @@ def inject_style():
 # ---------------- Analyst88 -----------------
 st.header("Analyst88 – AI Stock Screener")
 
-if "OPENAI_API_KEY" in st.secrets:
-    import openai
-    openai.api_key = st.secrets["OPENAI_API_KEY"]
+
 
     st.write("Click below to have AI scan all current feeds for high-potential stocks and indexes.")
 if st.button("Run Analyst88"):
