@@ -4,3 +4,4 @@ pandas
 feedparser
 vaderSentiment
 python-dateutil
+openai>=1.30.0
