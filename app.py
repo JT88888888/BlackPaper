@@ -423,3 +423,14 @@ if st.button("Run Analyst88 full scan"):
         st.write(completion.choices[0].message["content"])
     except Exception as e:
         st.error(f"Analyst88 scan failed: {e}")
+if st.button("Refresh Ticker List (Admin)"):
+    import requests, csv, os
+    r = requests.get(
+        f"https://finnhub.io/api/v1/stock/symbol?exchange=US&token={os.environ['FINNHUB_TOKEN']}"
+    )
+    data = r.json()
+    with open("tickers.csv", "w", newline="") as f:
+        w = csv.writer(f)
+        for d in data:
+            w.writerow([d["symbol"]])
+    st.success(f"Updated tickers.csv with {len(data)} symbols")
