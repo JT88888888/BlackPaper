@@ -174,3 +174,123 @@ st.dataframe(
 )
 
 st.caption("Heuristic model for research only. Batch size rotates hourly to cover a large universe within free API limits.")
+# =======================
+# Analyst88 (OpenAI pass)
+# =======================
+import json
+from math import ceil
+
+try:
+    from openai import OpenAI
+    _openai_key = os.getenv("OPENAI_API_KEY", "").strip()
+    _openai_ready = bool(_openai_key)
+except Exception:
+    _openai_ready = False
+
+st.subheader("Analyst88 – AI Flags (next 1–5 days)")
+
+with st.expander("Run Analyst88 on the feed (uses your OpenAI API key)"):
+    colA, colB, colC = st.columns(3)
+    with colA:
+        min_t1_gate = st.slider("Pre-filter by T+1 (to cut noise)", 0, 100, 70)
+    with colB:
+        max_items = st.slider("Max items to analyze this run", 50, 400, 200, step=50)
+    with colC:
+        model_name = st.selectbox("Model", ["gpt-4o-mini", "gpt-4o"], index=0,
+                                  help="Mini is cheaper; 4o is stronger but costs more.")
+
+    if not _openai_ready:
+        st.warning("Add OPENAI_API_KEY in **Manage app → Secrets** to enable Analyst88.")
+    else:
+        # Build a compact, token-friendly list of items for the LLM
+        df_aa = df[df["T+1"] >= min_t1_gate].copy()
+        if df_aa.empty:
+            st.info("Nothing passes the pre-filter. Lower the T+1 gate or wait for new items.")
+        else:
+            # Use a stable id so the LLM can reference/return items
+            def _mkid(row):
+                return sha(f'{row["source"]}|{row["title"]}|{row["published_at"]}')
+            df_aa["aa_id"] = df_aa.apply(_mkid, axis=1)
+
+            # Order by recency then T+1 and clip
+            df_aa.sort_values(["published_at","T+1"], ascending=[False, False], inplace=True)
+            df_aa = df_aa.head(max_items)
+
+            # Prepare payload (shorten text for token safety)
+            def _shorten(text, n=350):
+                return (text or "")[:n]
+            items = []
+            for _, r in df_aa.iterrows():
+                items.append({
+                    "id": r["aa_id"],
+                    "ticker": r["ticker"],
+                    "catalyst": r["catalyst"],
+                    "t1": int(r["T+1"]),
+                    "t5": int(r["T+5"]),
+                    "polarity": float(r["polarity"]),
+                    "confidence": float(r["confidence"]),
+                    "title": _shorten(r["title"], 200),
+                    "snippet": _shorten(str(r.get("snippet","")), 350),
+                    "source": r["source"],
+                    "published_at": str(r["published_at"]),
+                    "url": r["url"],
+                })
+
+            st.write(f"Sending {len(items)} items to Analyst88…")
+
+            # System & user prompts
+            system_prompt = (
+                "You are Analyst88, an equity event-driven analyst. "
+                "Task: from the provided news/filing items (each with sentiment & catalyst), "
+                "flag those most likely to see **upward** price impact in the **next 1–5 trading days**. "
+                "Favor catalysts like GUIDANCE↑, REGULATORY approvals, M&A (acquirer/target context), "
+                "material PRODUCT wins, positive EARNINGS surprises. Penalize vague/old items. "
+                "Return strict JSON: an array of objects with keys:\n"
+                "  id (from input), potential (0..100), horizon ('T+1' or 'T+5'), "
+                "  rationale (<=240 chars), risk_notes (<=140 chars).\n"
+                "Only include items you consider high potential (potential ≥ 80)."
+            )
+            user_prompt = (
+                "Items JSON follows. Score and return only high-potential longs.\n"
+                "INPUT_ITEMS_JSON:\n" + json.dumps(items, ensure_ascii=False)
+            )
+
+            if st.button("Run Analyst88 now", type="primary"):
+                try:
+                    client = OpenAI(api_key=_openai_key)
+                    resp = client.chat.completions.create(
+                        model=model_name,
+                        temperature=0.2,
+                        response_format={"type": "json_object"},
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_prompt},
+                        ],
+                    )
+                    raw = resp.choices[0].message.content
+                    # Expecting {"high_potential":[...]} or just a list; handle both
+                    try:
+                        parsed = json.loads(raw)
+                        hp = parsed.get("high_potential", parsed if isinstance(parsed, list) else [])
+                    except Exception:
+                        hp = []
+                    if not hp:
+                        st.info("Analyst88 returned no high-potential items for this batch.")
+                    else:
+                        # Merge back with df_aa for display
+                        hp_df = pd.DataFrame(hp)
+                        if "id" not in hp_df.columns:
+                            st.warning("Unexpected response shape from Analyst88.")
+                        else:
+                            merged = hp_df.merge(df_aa, left_on="id", right_on="aa_id", how="left")
+                            show_cols = ["published_at","ticker","catalyst","T+1","T+5",
+                                         "potential","horizon","rationale","risk_notes",
+                                         "title","source","url"]
+                            st.success(f"Analyst88 flagged {len(merged)} items")
+                            st.dataframe(
+                                merged[show_cols].sort_values(["potential","T+1"], ascending=[False, False]).reset_index(drop=True),
+                                use_container_width=True
+                            )
+                            st.caption("Note: Heuristic + LLM opinion. Research only, not investment advice.")
+                except Exception as e:
+                    st.error(f"Analyst88 failed: {e}")
