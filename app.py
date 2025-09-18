@@ -335,6 +335,8 @@ with st.expander("Run Analyst88 on the feed (uses your OpenAI API key)"):
                                 use_container_width=True
                             )
                             st.caption("Note: Heuristic + LLM opinion. Research only, not investment advice.")
+                            st.session_state["df_all"] = merged.copy()
+
                 except Exception as e:
                     st.error(f"Analyst88 failed: {e}")
 # --- UI STYLE PACK ---
@@ -367,8 +369,17 @@ if "OPENAI_API_KEY" in st.secrets:
     openai.api_key = st.secrets["OPENAI_API_KEY"]
 
     st.write("Click below to have AI scan all current feeds for high-potential stocks and indexes.")
-    if st.button("Run Analyst88"):
-        with st.spinner("AI is analysing all feeds and indexes..."):
+if st.button("Run Analyst88"):
+    with st.spinner("AI is analysing all feeds and indexes..."):
+        df_all = st.session_state.get("df_all")
+        if df_all is None or df_all.empty:
+            st.warning("No data available yet for Analyst88.")
+            st.stop()
+
+        # Pull the latest data table (you may already have a dataframe like 'df')
+        # ...rest of your Analyst88 code...
+
+
             # Pull the latest data table (you may already have a dataframe like 'df')
             df_all = merged if 'merged' in locals() else None
 
