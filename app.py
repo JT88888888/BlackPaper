@@ -364,9 +364,7 @@ def inject_style():
 # ---------------- Analyst88 -----------------
 st.header("Analyst88 – AI Stock Screener")
 
-
-
-    st.write("Click below to have AI scan all current feeds for high-potential stocks and indexes.")
+st.write("Click below to have AI scan all current feeds for high-potential stocks and indexes.")
 if st.button("Run Analyst88"):
     with st.spinner("AI is analysing all feeds and indexes..."):
         df_all = st.session_state.get("df_all")
