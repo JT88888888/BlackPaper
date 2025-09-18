@@ -188,6 +188,7 @@ df.sort_values(["T+1","published_at"], ascending=[False, False], inplace=True)
 
 # ---- Auto Top Picks (AI filtered) ----
 st.markdown('<a id="dash"></a>', unsafe_allow_html=True)
+st.header("Dashboard")
 st.subheader("Auto Top Picks")
 picks = df[(df["T+1"]>=auto_min_t1) & (df["confidence"]>=auto_min_conf)].copy()
 st.write(f"{len(picks)} picks (T+1 ≥ {auto_min_t1}, confidence ≥ {auto_min_conf}) from a batch of {len(batch)} symbols")
@@ -199,6 +200,7 @@ st.dataframe(
 
 # ---- Full feed + filters ----
 st.markdown('<a id="signals"></a>', unsafe_allow_html=True)
+st.header("Top Signals")
 st.subheader("Full Feed (current batch)")
 tickers = sorted(df["ticker"].unique())
 sel_t = st.multiselect("Tickers", tickers, default=[])
@@ -230,6 +232,7 @@ try:
 except Exception:
     _openai_ready = False
 st.markdown('<a id="analyst88"></a>', unsafe_allow_html=True)
+st.header("Analyst88 – AI Stock Screener")
 st.subheader("Analyst88 – AI Flags (next 1–5 days)")
 
 with st.expander("Run Analyst88 on the feed (uses your OpenAI API key)"):
