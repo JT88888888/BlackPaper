@@ -10,7 +10,7 @@ def inject_style():
       .app-header {display:flex; gap:14px; align-items:center; margin:10px 0 4px 0;}
       .app-title {font-size:30px; font-weight:700;}
       .pill {padding:4px 8px; border-radius:999px; background:#0b5; color:white; font-size:12px;}
-      .nav {display:flex; gap:18px; margin:6px 0 14px 0; opacity:.95}
+      .nav {display:flex; gap:18px; margin:6px 0 14px 0; opacity:.95; position:relative; z-index:10}
       .nav a {text-decoration:none; color:#9ca3af; font-weight:600}
       .nav a.active {color:#fff; border-bottom:2px solid #1abc9c; padding-bottom:4px}
       .card {background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);
