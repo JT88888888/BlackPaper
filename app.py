@@ -195,6 +195,7 @@ st.dataframe(
 )
 
 # ---- Full feed + filters ----
+st.markdown('<a id="signals"></a>', unsafe_allow_html=True)
 st.subheader("Full Feed (current batch)")
 tickers = sorted(df["ticker"].unique())
 sel_t = st.multiselect("Tickers", tickers, default=[])
