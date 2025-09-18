@@ -1,7 +1,45 @@
 import os, re, time, json, hashlib, random, requests, pandas as pd, feedparser, streamlit as st
 from datetime import datetime, timedelta
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+# --- New dashboard header/navigation (B) ---
+st.set_page_config(page_title="BlackPaper – Market Intelligence", layout="wide")
 
+def inject_style():
+    st.markdown("""
+    <style>
+      .app-header {display:flex; gap:14px; align-items:center; margin:10px 0 4px 0;}
+      .app-title {font-size:30px; font-weight:700;}
+      .pill {padding:4px 8px; border-radius:999px; background:#0b5; color:white; font-size:12px;}
+      .nav {display:flex; gap:18px; margin:6px 0 14px 0; opacity:.95}
+      .nav a {text-decoration:none; color:#9ca3af; font-weight:600}
+      .nav a.active {color:#fff; border-bottom:2px solid #1abc9c; padding-bottom:4px}
+      .card {background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);
+             border-radius:14px; padding:14px 16px;}
+      .kpi-title {font-size:13px; color:#9ca3af; margin-bottom:6px}
+      .kpi-value {font-size:24px; font-weight:700}
+      .kpi-delta-up {color:#22c55e; font-size:12px}
+      .kpi-delta-down {color:#ef4444; font-size:12px}
+      .section-title {font-size:18px; font-weight:700; margin:10px 0}
+      .muted {color:#9ca3af; font-size:12px}
+      table td, table th {font-size: 13px;}
+    </style>
+    """, unsafe_allow_html=True)
+
+inject_style()
+
+st.markdown("""
+<div class="app-header">
+  <div class="app-title">Market Intelligence Dashboard</div>
+  <span class="pill">AI-powered</span>
+</div>
+<div class="nav">
+  <a class="active" href="#dash">Dashboard</a>
+  <a href="#signals">Top Signals</a>
+  <a href="#analyst88">Analyst88</a>
+  <a href="#settings">Settings</a>
+</div>
+""", unsafe_allow_html=True)
+# --- End new header/navigation ---
 # ----------------- Config -----------------
 DEFAULT_WATCHLIST = ["AAPL","MSFT","NVDA","AMZN","GOOGL","META","TSLA","SPY","QQQ","IWM","DIA","XLK","XLF","SMH","SOXX"]
 DAYS_BACK = 3                      # window to pull
