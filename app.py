@@ -354,3 +354,34 @@ def inject_style():
       table td, table th {font-size: 13px;}
     </style>
     """, unsafe_allow_html=True)
+# ---------------- Analyst88 -----------------
+st.header("Analyst88 – AI Stock Screener")
+
+if "OPENAI_API_KEY" in st.secrets:
+    import openai
+    openai.api_key = st.secrets["OPENAI_API_KEY"]
+
+    st.write("Click below to have AI scan all current feeds for high-potential stocks and indexes.")
+    if st.button("Run Analyst88"):
+        with st.spinner("AI is analysing all feeds and indexes..."):
+            # Pull the latest data table (you may already have a dataframe like 'df')
+            df_all = merged if 'merged' in locals() else None
+
+            if df_all is not None:
+                prompt = (
+                    "Analyze this market data and flag tickers (including indexes) "
+                    "that are most likely to rise in the next few days. "
+                    "Explain briefly why for each pick.\n\n"
+                    f"{df_all.to_csv(index=False)}"
+                )
+                completion = openai.ChatCompletion.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "system", "content": "You are a financial analyst."},
+                              {"role": "user", "content": prompt}]
+                )
+                st.subheader("AI Recommendations")
+                st.write(completion.choices[0].message["content"])
+            else:
+                st.warning("No data available yet for Analyst88.")
+else:
+    st.error("OPENAI_API_KEY not found. Add it to Streamlit secrets.")
